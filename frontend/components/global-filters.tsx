@@ -1,0 +1,22 @@
+"use client";
+
+import { RotateCcw } from "lucide-react";
+import type { Account, DatePeriod, GlobalFilters } from "@/lib/api";
+import { Button, Input, Select } from "@/components/ui";
+import { monthLabel } from "@/lib/utils";
+
+export function GlobalFiltersBar({ filters, accounts, onChange, onReset }: { filters: GlobalFilters; accounts: Account[]; onChange: (next: GlobalFilters) => void; onReset: () => void }) {
+  const update = (patch: Partial<GlobalFilters>) => onChange({ ...filters, ...patch });
+  const activeRange = filters.period === "custom";
+  return <section className="mb-6 rounded-[26px] bg-white/85 p-4 shadow-card ring-1 ring-ink/[0.04]" aria-label="Global account and date filters">
+    <div className="flex flex-col gap-3 xl:flex-row xl:items-end">
+      <div className="min-w-[190px] flex-1"><label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.14em] text-ink/45" htmlFor="global-account">Account</label><Select id="global-account" value={filters.accountId || "all"} onChange={event => update({ accountId: event.target.value === "all" ? undefined : event.target.value })}><option value="all">All Accounts · combined</option>{accounts.map(account => <option key={account.id} value={account.id}>{account.name} · {account.bank}</option>)}</Select></div>
+      <div className="min-w-[190px] flex-1"><label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.14em] text-ink/45" htmlFor="global-period">Date range</label><Select id="global-period" value={filters.period} onChange={event => { const period = event.target.value as DatePeriod; const today = new Date(); const end = today.toISOString().slice(0, 10); const start = new Date(today.getFullYear(), today.getMonth(), 1).toISOString().slice(0, 10); update(period === "custom" ? { period, dateFrom: filters.dateFrom || start, dateTo: filters.dateTo || end } : period === "month" ? { period, month: filters.month || today.toISOString().slice(0, 7), dateFrom: undefined, dateTo: undefined } : { period, dateFrom: undefined, dateTo: undefined }); }}><option value="this_month">This month</option><option value="last_month">Last month</option><option value="last_3_months">Last 3 months</option><option value="last_6_months">Last 6 months</option><option value="this_year">This year</option><option value="all_time">All time</option><option value="month">Individual month</option><option value="custom">Custom range</option></Select></div>
+      {filters.period === "month" && <div className="min-w-[170px] flex-1"><label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.14em] text-ink/45" htmlFor="global-month">Month</label><Input id="global-month" type="month" value={filters.month || ""} onChange={event => update({ month: event.target.value })} /></div>}
+      {filters.period === "this_year" && <div className="min-w-[130px] flex-1"><label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.14em] text-ink/45" htmlFor="global-year">Year</label><Input id="global-year" type="number" min="2000" max="2100" value={filters.year || new Date().getFullYear()} onChange={event => update({ year: Number(event.target.value) })} /></div>}
+      {activeRange && <><div className="min-w-[155px] flex-1"><label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.14em] text-ink/45" htmlFor="global-from">From</label><Input id="global-from" type="date" value={filters.dateFrom || ""} onChange={event => update({ dateFrom: event.target.value })} /></div><div className="min-w-[155px] flex-1"><label className="mb-2 block text-[11px] font-bold uppercase tracking-[0.14em] text-ink/45" htmlFor="global-to">To</label><Input id="global-to" type="date" value={filters.dateTo || ""} onChange={event => update({ dateTo: event.target.value })} /></div></>}
+      <Button variant="secondary" onClick={onReset}><RotateCcw size={15} /> Reset</Button>
+    </div>
+    <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-ink/45"><span className="font-semibold text-ink/65">Active:</span><span>{filters.accountId ? accounts.find(account => account.id === filters.accountId)?.name || "Selected account" : "All Accounts"}</span><span>·</span><span>{filters.period === "month" && filters.month ? monthLabel(filters.month) : filters.period === "custom" ? `${filters.dateFrom || "…"} to ${filters.dateTo || "…"}` : filters.period.replaceAll("_", " ")}</span></div>
+  </section>;
+}

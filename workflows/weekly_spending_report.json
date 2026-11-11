@@ -1,0 +1,10 @@
+{
+  "name": "SpendWise Weekly Aggregate Report (Demo)",
+  "nodes": [
+    {"parameters": {}, "id": "manual", "name": "Manual Trigger", "type": "n8n-nodes-base.manualTrigger", "typeVersion": 1, "position": [220, 300]},
+    {"parameters": {"jsCode": "const kpi = {personal_expense_paise: 60000, gross_paid_paise: 180000, outstanding_paise: 120000, review_count: 0}; return [{json: { ...kpi, report: `Demo: personal spend ₹${(kpi.personal_expense_paise/100).toFixed(2)}; gross payments ₹${(kpi.gross_paid_paise/100).toFixed(2)}; outstanding reimbursements ₹${(kpi.outstanding_paise/100).toFixed(2)}. These figures are deterministic sample data.` }}];"}, "id": "report", "name": "Build Demo KPI Report", "type": "n8n-nodes-base.code", "typeVersion": 2, "position": [480, 300]}
+  ],
+  "connections": {"Manual Trigger": {"main": [[{"node": "Build Demo KPI Report", "type": "main", "index": 0}]]}},
+  "active": false,
+  "settings": {"executionOrder": "v1"}
+}

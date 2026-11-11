@@ -1,0 +1,6 @@
+date,recipient,amount,direction,reference,note
+2026-11-01,rahul@upi,2500,debit,DEMO-RENT-001,
+2026-11-02,cafe@upi,450,debit,DEMO-FOOD-002,dinner
+2026-11-03,priya@upi,600,credit,DEMO-REPAY-003,
+2026-11-04,mom@upi,5000,debit,DEMO-FAMILY-004,
+2026-11-05,grocer@upi,840,debit,DEMO-GROC-005,groceries
