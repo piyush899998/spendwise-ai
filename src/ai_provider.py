@@ -60,7 +60,11 @@ class OpenRouterProvider(AIProvider):
 
     @property
     def enabled(self):
-        return os.getenv('SPENDWISE_AI_EXTERNAL_OPT_IN', '').lower() == 'true' and bool(os.getenv('OPENROUTER_API_KEY'))
+        return (
+            os.getenv('SPENDWISE_AI_EXTERNAL_OPT_IN', '').lower() == 'true'
+            and os.getenv('SPENDWISE_EXTERNAL_AI_ALLOWED', 'true').lower() == 'true'
+            and bool(os.getenv('OPENROUTER_API_KEY'))
+        )
 
     @staticmethod
     def _safe_error_message(body):

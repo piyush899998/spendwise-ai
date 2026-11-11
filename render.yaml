@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: spendwise-ai-api
+    runtime: python
+    rootDir: .
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn backend.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    plan: free
+    envVars:
+      - key: SPENDWISE_DEMO_MODE
+        value: "true"
+      - key: SPENDWISE_DATABASE_URL
+        value: sqlite:////tmp/spendwise-demo.db
+      - key: SPENDWISE_AI_EXTERNAL_OPT_IN
+        value: "false"
+      - key: SPENDWISE_EXTERNAL_AI_ALLOWED
+        value: "false"
+      - key: SPENDWISE_CORS_ORIGINS
+        sync: false

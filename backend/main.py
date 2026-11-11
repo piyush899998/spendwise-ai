@@ -12,6 +12,7 @@ import os
 import re
 import secrets
 from calendar import monthrange
+from contextlib import asynccontextmanager
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from typing import Optional
@@ -77,6 +78,7 @@ from src.market_data import market_pulse as fetch_market_pulse
 
 USER_ID = 'demo-user'
 USER_NAME = 'Demo User'
+DEMO_MODE = os.getenv('SPENDWISE_DEMO_MODE', '').lower() == 'true'
 
 
 class PaymentRequest(BaseModel):
@@ -269,7 +271,13 @@ class ReportRequest(BaseModel):
 _statement_previews: dict[str, StatementPreview] = {}
 
 
-app = FastAPI(title='SpendWise AI API', version='3.0.0')
+@asynccontextmanager
+async def lifespan(_app):
+    initialize_demo_database()
+    yield
+
+
+app = FastAPI(title='SpendWise AI API', version='3.0.0', lifespan=lifespan)
 _cors_origins = [
     origin.strip() for origin in os.getenv(
         'SPENDWISE_CORS_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000'
@@ -283,6 +291,16 @@ app.add_middleware(
     allow_methods=['*'],
     allow_headers=['*'],
 )
+
+
+def initialize_demo_database():
+    """Seed only an empty, explicitly isolated public-demo database."""
+    if not DEMO_MODE:
+        return
+    ledger = load_ledger()
+    if ledger.get('accounts') or ledger.get('transactions'):
+        return
+    reset_demo(DemoResetRequest(seed=True))
 
 
 @app.get('/api/categories')

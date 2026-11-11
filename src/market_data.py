@@ -291,12 +291,15 @@ def market_pulse(force_refresh: bool = False, gold_range: str = "1m") -> dict[st
     except MarketProviderError as error:
         errors["gold"] = str(error)
         gold = {"status": "unavailable", "source": "GoldPrice.dev", "updated_at": None, "purity": "24K/22K", "unit": "INR per gram", "value_paise": None, "price_22k_paise": None, "history": [], "history_status": "unavailable"}
-    try:
-        historical = gold_history(gold_range)
-        gold["historical"] = historical
-    except MarketProviderError as error:
-        errors["gold_history"] = str(error)
+        errors["gold_history"] = "gold_snapshot_unavailable"
         gold["historical"] = {"status": "unavailable", "range": gold_range, "history": [], "available_ranges": ["7d", "1m", "3m", "1y"], "source": "Standard Bullion + Frankfurter"}
+    else:
+        try:
+            historical = gold_history(gold_range)
+            gold["historical"] = historical
+        except MarketProviderError as error:
+            errors["gold_history"] = str(error)
+            gold["historical"] = {"status": "unavailable", "range": gold_range, "history": [], "available_ranges": ["7d", "1m", "3m", "1y"], "source": "Standard Bullion + Frankfurter"}
     try:
         indices = market_series()
     except MarketProviderError as error:
